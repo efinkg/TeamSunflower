@@ -24,6 +24,8 @@ int top_sensor_value = analogRead(top_sensor_pin);
 int down_sensor_value = analogRead(down_sensor_pin);
 int back_sensor_value = analogRead(back_sensor_pin);
 
+int difference_threshold = 5;
+
 //Initialize states
 int eastbutton_state = 0;         //east button initialization 
 int westbutton_state = 0;         //west button initialization
@@ -76,25 +78,30 @@ void loop()
   if (bottombutton_state == HIGH) {     
     Serial.println("Bottom EndStop is pressed!");
   } 
+  
+  while((back_sensor_value-average_value())>difference_threshold && eastbutton_state==LOW){
+    update_sensors();
+    rotate_east();
+    Serial.println("Go east to catch the sunrise.");
+  }
 
-
-  while((west_sensor_value-east_sensor_value)>100 && westbutton_state==LOW){
+  while((west_sensor_value-east_sensor_value)>difference_threshold && westbutton_state==LOW){
     update_sensors();
     rotate_west();
     Serial.println("Go west.");
   }
-  while((east_sensor_value-west_sensor_value)>100  && eastbutton_state==LOW){
+  while((east_sensor_value-west_sensor_value)>difference_threshold  && eastbutton_state==LOW){
     update_sensors();
     rotate_east();
     Serial.println("Go east.");
   }
   
- while((top_sensor_value-down_sensor_value)>100 && topbutton_state==LOW){
+ while((top_sensor_value-down_sensor_value)>difference_threshold && topbutton_state==LOW){
     update_sensors();
     elev_up();
     Serial.println("Elevate up");
   }
-  while((down_sensor_value-top_sensor_value)>100 && bottombutton_state==LOW){
+  while((down_sensor_value-top_sensor_value)>difference_threshold && bottombutton_state==LOW){
     update_sensors();
     elev_down();
     Serial.println("Elevate Down");

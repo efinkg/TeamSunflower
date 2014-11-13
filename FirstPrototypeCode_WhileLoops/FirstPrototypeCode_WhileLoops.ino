@@ -26,6 +26,8 @@ int back_sensor_value = analogRead(back_sensor_pin);
 
 int difference_threshold = 5;
 
+int is_bright = 40;
+
 //Initialize states
 int eastbutton_state = 0;         //east button initialization 
 int westbutton_state = 0;         //west button initialization
@@ -54,7 +56,6 @@ void loop()
   
   update_sensors();
   
-  /*
   Serial.print("Sensor 0: ");
   Serial.print(west_sensor_value);
   Serial.print(" Sensor 1: "); 
@@ -64,7 +65,6 @@ void loop()
   Serial.print(" Sensor 3: "); 
   Serial.print(down_sensor_value);
   Serial.println();
-  */
   
   if (eastbutton_state == HIGH) {      
     Serial.println("East EndStop is pressed!");
@@ -79,9 +79,12 @@ void loop()
     Serial.println("Bottom EndStop is pressed!");
   } 
   
-  while((back_sensor_value-average_value())>difference_threshold && eastbutton_state==LOW){
-    update_sensors();
-    rotate_east();
+  if((back_sensor_value-average_value())>difference_threshold && eastbutton_state==LOW){
+    while(east_sensor_value<is_bright && eastbutton_state==LOW){
+      update_sensors();
+      Serial.println(east_sensor_value);
+      rotate_east();
+    }
     Serial.println("Go east to catch the sunrise.");
   }
 
@@ -139,6 +142,7 @@ If you only call the forw, or back functions, you will not see the motors turn. 
 the direction you were last set to. In the code above, you might have noticed that I called forw and fade in the same grouping. You will want to call a new direction, and then
 declare your pwm fade. There is also a stop function. 
 */
+
 
 void go_west() // no pwm defined
 { 

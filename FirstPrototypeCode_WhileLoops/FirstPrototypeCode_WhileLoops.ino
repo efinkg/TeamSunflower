@@ -1,15 +1,18 @@
 //PWM Pins
-int pwn_rot = 3;   //PWM control for motor outputs 1 and 2 is on digital pin 3
-int pwn_elev = 11;  //PWM control for motor outputs 3 and 4 is on digital pin 11
-int dir_rot = 12;  //direction control for motor outputs 1 and 2 is on digital pin 12
-int dir_elev = 13;  //direction control for motor outputs 3 and 4 is on digital pin 13
+const int pwn_rot = 3;   //PWM control for motor outputs 1 and 2 is on digital pin 3
+const int pwn_elev = 11;  //PWM control for motor outputs 3 and 4 is on digital pin 11
+const int dir_rot = 12;  //direction control for motor outputs 1 and 2 is on digital pin 12
+const int dir_elev = 13;  //direction control for motor outputs 3 and 4 is on digital pin 13
 
 //Sensor Pins
-int west_sensor_pin = A3; //analog pin 0
-int east_sensor_pin = A4; //analog pin 1
-int top_sensor_pin = A2; //analog pin 2
-int down_sensor_pin = A1; //analog pin 3
-int back_sensor_pin = A0; //analog pin 4
+const int west_sensor_pin = A3; //analog pin 0
+const int east_sensor_pin = A4; //analog pin 1
+const int top_sensor_pin = A2; //analog pin 2
+const int down_sensor_pin = A1; //analog pin 3
+const int back_sensor_pin = A0; //analog pin 4
+
+//Battery Input Directly to show if we're charging or not
+const int battery_pin = A5; //Battery input
 
 //End Stop Pins
 const int eastbutton_pin = 6;     // The number of the east endstop pin
@@ -23,9 +26,9 @@ int east_sensor_value = analogRead(east_sensor_pin);
 int top_sensor_value = analogRead(top_sensor_pin);
 int down_sensor_value = analogRead(down_sensor_pin);
 int back_sensor_value = analogRead(back_sensor_pin);
+int battery_sensor_value = analogRead(battery_pin);
 
 int difference_threshold = 5;
-
 int is_bright = 40;
 
 //Initialize states
@@ -55,14 +58,18 @@ void loop()
   go_up();
   
   update_sensors();
+  float voltage = battery_sensor_value*(5.0/1023.0);
   
-  Serial.print("Sensor 0: ");
+  Serial.print("BatterySensor: ");
+  Serial.print(voltage);
+  
+  Serial.print(" West Sensor : ");
   Serial.print(west_sensor_value);
-  Serial.print(" Sensor 1: "); 
+  Serial.print(" East Sensor: "); 
   Serial.print(east_sensor_value);
-  Serial.print(" Sensor 2: "); 
+  Serial.print(" Top Sensor: "); 
   Serial.print(top_sensor_value);
-  Serial.print(" Sensor 3: "); 
+  Serial.print(" Down sensor: "); 
   Serial.print(down_sensor_value);
   Serial.println();
   
@@ -78,6 +85,7 @@ void loop()
   if (bottombutton_state == HIGH) {     
     Serial.println("Bottom EndStop is pressed!");
   } 
+  
   
   if((back_sensor_value-average_value())>difference_threshold && eastbutton_state==LOW){
     while(east_sensor_value<is_bright && eastbutton_state==LOW){
@@ -109,6 +117,7 @@ void loop()
     elev_down();
     Serial.println("Elevate Down");
   }
+  
 
   stopped();      // stop for 2 seconds
 }
@@ -119,11 +128,13 @@ void update_sensors(){
   east_sensor_value = analogRead(east_sensor_pin);
   top_sensor_value = analogRead(top_sensor_pin);
   down_sensor_value = analogRead(down_sensor_pin);
-  
-  average_value();
-  
   back_sensor_value = analogRead(back_sensor_pin);
   
+  average_value();
+
+  //Check the battery voltage
+  battery_sensor_value = analogRead(battery_pin);
+
   //Look at endstops
   westbutton_state = digitalRead(westbutton_pin);
   eastbutton_state = digitalRead(eastbutton_pin);

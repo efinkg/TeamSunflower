@@ -1,3 +1,7 @@
+#include <avr/interrupt.h>
+#include <avr/power.h>
+#include <avr/sleep.h>
+
 //PWM Pins
 const int pwn_rot = 3;   //PWM control for motor outputs 1 and 2 is on digital pin 3
 const int pwn_elev = 11;  //PWM control for motor outputs 3 and 4 is on digital pin 11
@@ -5,8 +9,8 @@ const int dir_rot = 12;  //direction control for motor outputs 1 and 2 is on dig
 const int dir_elev = 13;  //direction control for motor outputs 3 and 4 is on digital pin 13
 
 //Sensor Pins
-const int west_sensor_pin = A3; //analog pin 0
-const int east_sensor_pin = A4; //analog pin 1
+const int east_sensor_pin = A3; //analog pin 0
+const int west_sensor_pin = A4; //analog pin 1
 const int top_sensor_pin = A2; //analog pin 2
 const int down_sensor_pin = A1; //analog pin 3
 const int back_sensor_pin = A0; //analog pin 4
@@ -15,10 +19,10 @@ const int back_sensor_pin = A0; //analog pin 4
 const int battery_pin = A5; //Battery input
 
 //End Stop Pins
-const int eastbutton_pin = 6;     // The number of the east endstop pin
-const int westbutton_pin = 7;     // The number of the west endstop pin
-const int topbutton_pin = 4;     // The number of the top endstop pin
-const int bottombutton_pin = 5;     // The number of the bottom endstop pin
+const int westbutton_pin = 6;     // The number of the east endstop pin
+const int eastbutton_pin = 7;     // The number of the west endstop pin
+const int topbutton_pin = 5;     // The number of the top endstop pin
+const int bottombutton_pin = 4;     // The number of the bottom endstop pin
 
 //Instatiate sensor values
 int west_sensor_value = analogRead(west_sensor_pin);
@@ -60,6 +64,8 @@ void loop()
   update_sensors();
   float voltage = battery_sensor_value*(5.0/1023.0);
   
+  /*
+
   Serial.print("BatterySensor: ");
   Serial.print(voltage);
   
@@ -72,6 +78,7 @@ void loop()
   Serial.print(" Down sensor: "); 
   Serial.print(down_sensor_value);
   Serial.println();
+  
   
   if (eastbutton_state == HIGH) {      
     Serial.println("East EndStop is pressed!");
@@ -86,6 +93,8 @@ void loop()
     Serial.println("Bottom EndStop is pressed!");
   } 
   
+  */
+  
   
   if((back_sensor_value-average_value())>difference_threshold && eastbutton_state==LOW){
     while(east_sensor_value<is_bright && eastbutton_state==LOW){
@@ -95,6 +104,7 @@ void loop()
     }
     Serial.println("Go east to catch the sunrise.");
   }
+  
 
   while((west_sensor_value-east_sensor_value)>difference_threshold && westbutton_state==LOW){
     update_sensors();
@@ -117,9 +127,11 @@ void loop()
     elev_down();
     Serial.println("Elevate Down");
   }
+ 
   
 
   stopped();      // stop for 2 seconds
+  sleepNow();
 }
 
 void update_sensors(){
@@ -142,6 +154,27 @@ void update_sensors(){
   bottombutton_state = digitalRead(bottombutton_pin);
 }
 
+void sleepNow()
+{
+    // Choose our preferred sleep mode:
+    set_sleep_mode(SLEEP_MODE_IDLE);  //Save...MOST OF THE POWER
+ 
+    // Set sleep enable (SE) bit:
+    sleep_enable();
+ 
+    // Put the device to sleep:
+    sleep_mode();
+    
+    Serial.println("Goodnight Team Sunflower :)");
+    
+    delay(5000);
+    
+    Serial.println("HI GUYS!");
+ 
+    // Upon waking up, sketch continues from this point.
+    sleep_disable();
+}
+
 int average_value(){
      int averagevalue = (west_sensor_value+east_sensor_value+top_sensor_value+down_sensor_value)/4;
      //Serial.println(averagevalue);
@@ -155,7 +188,7 @@ declare your pwm fade. There is also a stop function.
 */
 
 
-void go_west() // no pwm defined
+void go_east() // no pwm defined
 { 
   digitalWrite(dir_rot, LOW);  //Reverse motor direction, 1 high, 2 low
 }
@@ -165,7 +198,7 @@ void go_up() // no pwm defined
   digitalWrite(dir_elev, HIGH);  //Reverse motor direction, 3 low, 4 high  
 }
 
-void go_east() // no pwm defined
+void go_west() // no pwm defined
 {
   digitalWrite(dir_rot, HIGH);  //Set motor direction, 1 low, 2 high
 }
@@ -175,13 +208,13 @@ void go_down() // no pwm defined
   digitalWrite(dir_elev, LOW);  //Set motor direction, 1 low, 2 high
 }
 
-void rotate_east() //full speed go_westrd
+void rotate_west() //full speed go_westrd
 { 
   digitalWrite(dir_rot, LOW);  //Reverse motor direction, 1 high, 2 low
   analogWrite(pwn_rot, 200);    //set both motors to run at (100/255 = 39)% duty cycle
 }
 
-void rotate_west() //full speed backward
+void rotate_east() //full speed backward
 {
   digitalWrite(dir_rot, HIGH);  //Set motor direction, 1 low, 2 high
   analogWrite(pwn_rot, 200);   //set both motors to run at 100% duty cycle (fast)

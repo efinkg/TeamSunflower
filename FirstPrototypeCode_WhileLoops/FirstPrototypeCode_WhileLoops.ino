@@ -185,13 +185,6 @@ int average_value(){
      return averagevalue;
 }
 
-/* Let's take a moment to talk about these functions. The forw and back functions are simply designating the direction the motors will turn once they are fed a PWM signal.
-If you only call the forw, or back functions, you will not see the motors turn. On a similar note the fade in and out functions will only change PWM, so you need to consider
-the direction you were last set to. In the code above, you might have noticed that I called forw and fade in the same grouping. You will want to call a new direction, and then
-declare your pwm fade. There is also a stop function. 
-*/
-
-
 void go_east() // no pwm defined
 { 
   digitalWrite(dir_rot, LOW);  //Reverse motor direction, 1 high, 2 low
@@ -223,7 +216,7 @@ void rotate_east() //full speed backward
   digitalWrite(dir_rot, HIGH);  //Set motor direction, 1 low, 2 high
   analogWrite(pwn_rot, 200);   //set both motors to run at 100% duty cycle (fast)
 }
-void elev_up() //full speed go_westrd
+void elev_up() //full speed go_westward
 { 
   digitalWrite(dir_elev, HIGH);  //Reverse motor direction, 3 low, 4 high  
   analogWrite(pwn_elev, 200);

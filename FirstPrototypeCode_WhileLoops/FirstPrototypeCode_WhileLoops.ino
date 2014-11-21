@@ -1,6 +1,8 @@
 #include <avr/interrupt.h>
 #include <avr/power.h>
 #include <avr/sleep.h>
+//Motor A is rot
+//Motor B is elev
 
 //PWM Pins
 const int pwn_rot = 3;   //PWM control for motor outputs 1 and 2 is on digital pin 3
@@ -234,54 +236,6 @@ void stopped() //stop
   digitalWrite(dir_elev, LOW); //Set motor direction, 3 high, 4 low
   analogWrite(pwn_rot, 0);    //set both motors to run at 100% duty cycle (fast)
   analogWrite(pwn_elev, 0); 
-}
-
-void fadein_rot()
-{ 
-  // fade in from min to max in increments of 5 points:
-  for(int fadeValue = 0 ; fadeValue <= 255; fadeValue +=5) 
-  { 
-     // sets the value (range from 0 to 255):
-    analogWrite(pwn_rot, fadeValue);   
-    // wait for 30 milliseconds to see the dimming effect    
-    delay(30);                            
-  } 
-}
-
-void fadeout_rot()
-{ 
-  // fade out from max to min in increments of 5 points:
-  for(int fadeValue = 255 ; fadeValue >= 0; fadeValue -=5) 
-  { 
-    // sets the value (range from 0 to 255):
-    analogWrite(pwn_rot, fadeValue);
-    // wait for 30 milliseconds to see the dimming effect    
-    delay(30);  
-}
-}
-
-void fadein_elev()
-{ 
-  // fade in from min to max in increments of 5 points:
-  for(int fadeValue = 0 ; fadeValue <= 255; fadeValue +=5) 
-  { 
-     // sets the value (range from 0 to 255):
-    analogWrite(pwn_elev, fadeValue);   
-    // wait for 30 milliseconds to see the dimming effect    
-    delay(30);                            
-  } 
-}
-
-void fadeout_elev()
-{ 
-  // fade out from max to min in increments of 5 points:
-  for(int fadeValue = 255 ; fadeValue >= 0; fadeValue -=5) 
-  { 
-    // sets the value (range from 0 to 255):
-    analogWrite(pwn_elev, fadeValue);
-    // wait for 30 milliseconds to see the dimming effect    
-    delay(30);  
-}
 }
 
 void stop_rot()                   //stop motor A

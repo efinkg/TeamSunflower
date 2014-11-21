@@ -95,6 +95,8 @@ void loop()
   
   */
   
+  numCycles = 0;
+  while(numCycles<5){
   
   if((back_sensor_value-average_value())>difference_threshold && eastbutton_state==LOW){
     while(east_sensor_value<is_bright && eastbutton_state==LOW){
@@ -105,16 +107,16 @@ void loop()
     Serial.println("Go east to catch the sunrise.");
   }
   
-
-  while((west_sensor_value-east_sensor_value)>difference_threshold && westbutton_state==LOW){
-    update_sensors();
-    rotate_west();
-    Serial.println("Go west.");
-  }
   while((east_sensor_value-west_sensor_value)>difference_threshold  && eastbutton_state==LOW){
     update_sensors();
     rotate_east();
     Serial.println("Go east.");
+  }
+  
+  while((west_sensor_value-east_sensor_value)>difference_threshold && westbutton_state==LOW){
+    update_sensors();
+    rotate_west();
+    Serial.println("Go west.");
   }
   
  while((top_sensor_value-down_sensor_value)>difference_threshold && topbutton_state==LOW){
@@ -127,8 +129,10 @@ void loop()
     elev_down();
     Serial.println("Elevate Down");
   }
- 
+  numCycles++;
+  }
   
+  numCycles = 0;
 
   stopped();      // stop for 2 seconds
   sleepNow();
@@ -167,7 +171,7 @@ void sleepNow()
     
     Serial.println("Goodnight Team Sunflower :)");
     
-    delay(5000);
+    delay(10000);
     
     Serial.println("HI GUYS!");
  
